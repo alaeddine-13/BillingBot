@@ -1,4 +1,4 @@
-# LMS Billing Bot
+# Billing Bot
 ## Overview
 
 Golang based billing bot.
