@@ -1,0 +1,36 @@
+service: billing-bot
+frameworkVersion: '>=1.28.0 <2.0.0'
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: eu-central-1
+  stage: prod
+  cfnRole: ${opt:deployment_role_arn}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - ce:GetCostAndUsage
+      Resource: arn:aws:ce:us-east-1:${opt:account_id}:/GetCostAndUsage
+  
+  environment:
+   MONTHLY_THRESHOLD: "20.0"
+
+   WEBHOOK_URL_PARAMETER_NAME: ${opt:webhook_url_parameter_name}
+
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+functions:
+  billing:
+    handler: bin/billing
+    timeout: 10
+    events:
+     - schedule:
+        name: billing
+        rate: cron(57 23 * * ? *)
+        enabled: true
